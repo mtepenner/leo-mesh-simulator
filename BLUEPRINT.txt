@@ -1,0 +1,63 @@
+leo-mesh-simulator/
+│
+├── .github/                             # CI/CD for testing routing algorithms
+│   └── workflows/
+│       ├── test-dijkstra.yml            # Unit tests for the dynamic pathfinding
+│       └── build-engine.yml
+│
+├── orbital_engine/                      # Go: The Physics & Topology Brain
+│   ├── cmd/
+│   │   └── engine/
+│   │       └── main.go                  # Calculates positions and broadcasts the network state
+│   ├── internal/
+│   │   ├── kinematics/
+│   │   │   └── propagator.go            # Moves 500+ satellites along orbital planes using SGP4
+│   │   ├── topology/
+│   │   │   └── line_of_sight.go         # THE CRITICAL MATH: Raycasting to see if Earth blocks two satellites
+│   │   └── publisher/
+│   │       └── redis_stream.go          # Pushes the Adjacency Matrix (who can see who) at 10Hz
+│   ├── go.mod
+│   └── Dockerfile                       # CPU-optimized Go binary
+│
+├── routing_daemon/                      # Python + FastAPI: The Mesh Pathfinding API
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── routes/
+│   │   │       └── traceroute.py        # Endpoint: "Find path from Tokyo to London at Time = T"
+│   │   ├── core/
+│   │   │   └── graph_manager.py         # Subscribes to Redis, constantly updating NetworkX edges
+│   │   ├── pathfinding/
+│   │   │   ├── dijkstra_dynamic.py      # Shortest-path algorithm weighted by distance (latency)
+│   │   │   └── connection_manager.py    # Logic to instantly reroute when a link breaks
+│   │   └── main.py
+│   ├── requirements.txt                 # Includes networkx, fastapi, redis, numpy
+│   └── Dockerfile
+│
+├── mesh_dashboard/                      # React + TypeScript: The Holographic Operations Center
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Globe3D.tsx              # Three.js / React-Three-Fiber Earth rendering
+│   │   │   ├── Constellation.tsx        # InstancedMesh rendering 500+ glowing satellite nodes
+│   │   │   ├── LaserLinks.tsx           # GLSL shaders drawing lines between connected nodes
+│   │   │   └── RoutingHUD.tsx           # Displays live Ping (ms), Hop Count, and Path History
+│   │   ├── hooks/
+│   │   │   ├── useNetworkState.ts       # Consumes the 10Hz WebSocket feed of satellite positions
+│   │   │   └── useActiveRoute.ts        # Polls the Python backend for the current optimal path
+│   │   ├── App.tsx
+│   │   └── index.tsx
+│   ├── package.json                     # Needs three, @react-three/fiber, zustand (for fast state)
+│   └── Dockerfile
+│
+├── infrastructure/                      # Deployment Orchestration
+│   ├── redis-cluster.yaml               # High-throughput pub/sub for the adjacency matrix
+│   ├── orbital-engine.yaml
+│   ├── routing-daemon.yaml
+│   └── ingress.yaml
+│
+├── docker-compose.yml                   # Spins up Go, Python, React, and Redis locally
+├── Makefile
+└── README.md
+
+
+
+
