@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mesh-dashboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mesh-dashboard
+  template:
+    metadata:
+      labels:
+        app: mesh-dashboard
+    spec:
+      containers:
+      - name: mesh-dashboard
+        image: leo-mesh/mesh-dashboard:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: REACT_APP_API_URL
+          value: http://routing-daemon:8000/api/traceroute
+        ports:
+        - containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mesh-dashboard
+spec:
+  selector:
+    app: mesh-dashboard
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000

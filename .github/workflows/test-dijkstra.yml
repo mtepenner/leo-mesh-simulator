@@ -1,0 +1,31 @@
+name: Test Dijkstra Routing
+
+on:
+  push:
+    paths:
+      - 'routing_daemon/**'
+  pull_request:
+    paths:
+      - 'routing_daemon/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r routing_daemon/requirements.txt
+        pip install pytest pytest-asyncio
+    - name: Syntax check
+      run: |
+        python -m py_compile routing_daemon/app/main.py
+        python -m py_compile routing_daemon/app/core/graph_manager.py
+        python -m py_compile routing_daemon/app/pathfinding/connection_manager.py
+        python -m py_compile routing_daemon/app/pathfinding/dijkstra_dynamic.py
+        python -m py_compile routing_daemon/app/api/routes/traceroute.py

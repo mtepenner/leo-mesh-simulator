@@ -1,0 +1,7 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.5.0
+redis==5.0.0
+networkx==3.2
+numpy==1.24.3
+aioredis==2.0.1

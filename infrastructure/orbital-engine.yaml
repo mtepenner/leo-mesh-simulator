@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orbital-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orbital-engine
+  template:
+    metadata:
+      labels:
+        app: orbital-engine
+    spec:
+      containers:
+      - name: orbital-engine
+        image: leo-mesh/orbital-engine:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: REDIS_ADDR
+          value: redis:6379
+        - name: STREAM_KEY
+          value: topology-stream
+        - name: SNAPSHOT_KEY
+          value: topology-snapshot
+        args:
+        - -redis-addr
+        - redis:6379
+        - -num-sats
+        - "500"
+        - -verbose
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - test -n "$(redis-cli -h redis ping)"
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "2000m"
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orbital-engine
+spec:
+  selector:
+    app: orbital-engine
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080

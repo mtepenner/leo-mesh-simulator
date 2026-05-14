@@ -1,0 +1,43 @@
+name: Build Engine & Dashboard
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.21
+
+    - name: Test orbital engine
+      working-directory: orbital_engine
+      run: |
+        go mod download
+        go build ./cmd/engine
+        go vet ./...
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Build dashboard
+      working-directory: mesh_dashboard
+      run: |
+        npm install
+        npm run build
+
+    - name: Lint Python
+      run: |
+        python -m py_compile routing_daemon/app/main.py
+        python -m py_compile routing_daemon/app/core/graph_manager.py
+        python -m py_compile routing_daemon/app/pathfinding/connection_manager.py
+        python -m py_compile routing_daemon/app/api/routes/traceroute.py

@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: leo-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      - REDIS_LOGLEVEL=warning
+
+  orbital-engine:
+    build:
+      context: ./orbital_engine
+      dockerfile: Dockerfile
+    container_name: leo-orbital-engine
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  routing-daemon:
+    build:
+      context: ./routing_daemon
+      dockerfile: Dockerfile
+    container_name: leo-routing-daemon
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  mesh-dashboard:
+    build:
+      context: ./mesh_dashboard
+      dockerfile: Dockerfile
+    container_name: leo-mesh-dashboard
+    depends_on:
+      - routing-daemon
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api/traceroute
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+    driver: local

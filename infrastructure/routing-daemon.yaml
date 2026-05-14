@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: routing-daemon
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: routing-daemon
+  template:
+    metadata:
+      labels:
+        app: routing-daemon
+    spec:
+      containers:
+      - name: routing-daemon
+        image: leo-mesh/routing-daemon:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: REDIS_ADDR
+          value: redis:6379
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /api/traceroute/health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/traceroute/health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: routing-daemon
+spec:
+  selector:
+    app: routing-daemon
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
