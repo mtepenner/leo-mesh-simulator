@@ -33,15 +33,15 @@ const RoutingHUD: React.FC<RoutingHUDProps> = ({
       <div className="hud-section metrics">
         <div className="metric">
           <label>Latency</label>
-          <value className="latency">{latencyMs.toFixed(2)} ms</value>
+          <span className="value latency">{latencyMs.toFixed(2)} ms</span>
         </div>
         <div className="metric">
           <label>Hops</label>
-          <value>{hopCount}</value>
+          <span className="value">{hopCount}</span>
         </div>
         <div className="metric">
           <label>Reroutes</label>
-          <value>{rerouteCount}</value>
+          <span className="value">{rerouteCount}</span>
         </div>
       </div>
 

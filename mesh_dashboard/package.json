@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@react-three/drei": "^9.68.0",
+    "@react-three/fiber": "^8.13.0",
+    "axios": "^1.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typescript": "^5.0.0",
-    "three": "^r128",
-    "@react-three/fiber": "^8.13.0",
-    "@react-three/drei": "^9.68.0",
-    "zustand": "^4.4.0",
-    "axios": "^1.6.0"
+    "three": "^0.165.0",
+    "typescript": "^5.9.3",
+    "zustand": "^4.4.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -36,6 +36,10 @@
     ]
   },
   "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "ajv": "^8.17.1",
+    "ajv-keywords": "^5.1.0",
     "react-scripts": "5.0.1"
   }
 }
